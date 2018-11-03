@@ -1,0 +1,1 @@
+web: java -jar target/sf-oauth-java-example-1.0.jar
