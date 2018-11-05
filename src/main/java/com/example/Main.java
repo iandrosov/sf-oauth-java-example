@@ -29,6 +29,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -57,6 +64,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.Header;
+
 
 @Controller
 @SpringBootApplication
@@ -103,11 +113,12 @@ public class Main {
     HttpPost httpPost = new HttpPost("https://login.salesforce.com/services/oauth2/authorize");
  
     List<NameValuePair> params = new ArrayList<NameValuePair>();
-    params.add(new BasicNameValuePair("grant_type", "authorization_code"));
-    //params.add(new BasicNameValuePair("response_type", "code"));
+    //params.add(new BasicNameValuePair("grant_type", "authorization_code"));
+    params.add(new BasicNameValuePair("response_type", "code"));
     params.add(new BasicNameValuePair("client_id", "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
-    params.add(new BasicNameValuePair("client_secret", "8219049706333485472"));
+    //params.add(new BasicNameValuePair("client_secret", "8219049706333485472"));
     params.add(new BasicNameValuePair("redirect_uri", "https://localhost:5000/oauth/_callback"));
+    params.add(new BasicNameValuePair("display", "page"));
     
     httpPost.setEntity(new UrlEncodedFormEntity(params));
  
@@ -116,11 +127,30 @@ public class Main {
     client.close();
 
     System.out.println("### HTTP: "+response);
-    return "hello";
+
+    System.out.println("### "+response.getStatusLine());
+
+    String redirectUrl = "https://login.salesforce.com";
+    Header[] headers = response.getAllHeaders();
+    for (Header header : headers) {
+      System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
+      String key =  header.getName();
+      if (key.equals("Location")){
+          redirectUrl = header.getValue();
+      }
+
+    }
+    System.out.println("### SFDC OAUTH URL: "+redirectUrl);
+
+    return "redirect:" + redirectUrl;
+
   }
 
-  @RequestMapping("/oauth/_callback")
-  String oauth() {
+  @RequestMapping(value="/oauth/_callback", method={RequestMethod.GET,RequestMethod.POST}, produces=MediaType.TEXT_PLAIN_VALUE)
+  @ResponseBody
+  public String oauth(@RequestParam("code") String code) {
+    System.out.println("### OAuth RESPONSE: "+code);
+
     return "hello";
   }
 
