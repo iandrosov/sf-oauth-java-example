@@ -14,18 +14,20 @@
 
   <div class="container">
   	<div class="alert alert-info text-center" role="alert">
-  		<tr>
-  			<td>INSTANCE URL:</td>
-    		<td th:text="${instance_url}"/>
-    	</tr>
-    	<tr>
-    		<td>ACCESS TOKEN:</td>
-    		<td th:text="${access_token}"/>	
-    	</tr>
-    	<tr>
-    		<td>REFRESH TOKEN:</td>
-    		<td th:text="${refresh_token}"/>
-    	</tr>
+  		<table>
+	  		<tr>
+	  			<td>INSTANCE URL:</td>
+	    		<td th:text="${instance_url}"/>
+	    	</tr>
+	    	<tr>
+	    		<td>ACCESS TOKEN:</td>
+	    		<td th:text="${access_token}"/>	
+	    	</tr>
+	    	<tr>
+	    		<td>REFRESH TOKEN:</td>
+	    		<td th:text="${refresh_token}"/>
+	    	</tr>
+    	</table>
   	</div>
   </div>
 </body>
