@@ -88,11 +88,17 @@ import org.apache.http.Header;
 @Controller
 @SpringBootApplication
 public class Main {
+  // ------- COnnected App Parameters ------
   // To apply this code to a specific Salesforce Connected App security context replace bellow consumer key, secret and callback URL with
   // one from your own Connected APP parameters
   private static String SF_CLIENT_ID     = "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn";
   private static String SF_CLIENT_SECRET = "8219049706333485472";
   private static String SF_REDIRECT_URI  = "https://localhost:5000/oauth/_callback";
+  private static String SF_AUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";
+
+  private String instance_url;
+  private String access_token;
+  private String refresh_token;
 
   @Value("${spring.datasource.url}")
   private String dbUrl;
@@ -117,12 +123,12 @@ public class Main {
   public String sfoauth() throws IOException {
 
     CloseableHttpClient client = HttpClients.createDefault();
-    HttpPost httpPost = new HttpPost("https://login.salesforce.com/services/oauth2/authorize");
+    HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
  
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("response_type", "code"));
-    params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));//  "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
-    params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); //"https://localhost:5000/oauth/_callback"));
+    params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));
+    params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); 
     params.add(new BasicNameValuePair("display", "page"));
     
     httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -133,7 +139,7 @@ public class Main {
     System.out.println("### HTTP: "+response);
     System.out.println("### "+response.getStatusLine());
 
-    String redirectUrl = "https://login.salesforce.com";
+    String redirectUrl = "https://login.salesforce.com"; // default login Salesforce URL
     Header[] headers = response.getAllHeaders();
     for (Header header : headers) {
       System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
@@ -152,19 +158,19 @@ public class Main {
   // Method will recieve authorization code from Salesforce to get access and refresh tokens
   // Auth code will expire after 15 min in thsi OAuth flow
   @RequestMapping(value="/oauth/_callback", method={RequestMethod.GET,RequestMethod.POST}, produces=MediaType.TEXT_PLAIN_VALUE)
-  @ResponseBody
+  //@ResponseBody
   public String oauth(@RequestParam("code") String code) throws IOException {
     System.out.println("### OAuth RESPONSE: "+code);
 
     try{
       CloseableHttpClient client = HttpClients.createDefault();
-      HttpPost httpPost = new HttpPost("https://login.salesforce.com/services/oauth2/token");
+      HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/token"); // Request for TOKEN
  
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("grant_type", "authorization_code"));
-      params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID)); // "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
-      params.add(new BasicNameValuePair("client_secret", SF_CLIENT_SECRET)); //"8219049706333485472"));
-      params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); //"https://localhost:5000/oauth/_callback"));
+      params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));
+      params.add(new BasicNameValuePair("client_secret", SF_CLIENT_SECRET));
+      params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI));
       params.add(new BasicNameValuePair("code", code)); // Add authorization code from login attempt
     
       httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -180,17 +186,28 @@ public class Main {
 
       JsonParser jsonParser = new BasicJsonParser();
       Map<String, Object> jsonMap = jsonParser.parseMap(content);
-      String instance_url  = (String)jsonMap.get("instance_url");
-      String refresh_token = (String)jsonMap.get("refresh_token");
-      String access_token  = (String)jsonMap.get("access_token");
+      this.instance_url  = (String)jsonMap.get("instance_url");
+      this.refresh_token = (String)jsonMap.get("refresh_token");
+      this.access_token  = (String)jsonMap.get("access_token");
 
+      // Here we get accsess & refresh tokens from response
       System.out.println("### URL: "+instance_url);
-      System.out.println("### Token: "+access_token);
+      System.out.println("### Access Token: "+access_token);
+      System.out.println("### Refresh Token: "+refresh_token);
 
     } catch (IOException e) {
         e.printStackTrace();
     }
-    return "hello";
+    return "redirect:/authresult";
+  }
+
+  @RequestMapping("/authresult")
+  String authresult(Map<String, Object> model) {
+    model.put("instance_url", this.instance_url);
+    model.put("access_token", this.access_token);
+    model.put("refresh_token", this.refresh_token);
+
+    return "authresult";
   }
 
   @RequestMapping("/hello")
@@ -200,6 +217,12 @@ public class Main {
     model.put("science", "E=mc^2: 12 GeV = " + m.toString());
     return "hello";
   }
+
+
+
+
+
+  // ========= THIS SECTION CODE NOT USED IN OAUTH DEMO ===========
 
   @RequestMapping("/db")
   String db(Map<String, Object> model) {

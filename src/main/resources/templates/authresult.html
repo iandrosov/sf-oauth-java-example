@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'authresult')}">
+<body>
+	<div class="jumbotron text-center">
+	  <div class="container">
+	    <a href="/" class="lang-logo">
+	      <img src="/lang-logo.png">
+	    </a>
+	    <h1>Logged In to Salesfroce OAuth</h1>
+	    <p>This page confirms the successfull OAuth login</p>
+
+	  </div>
+	</div>
+
+  <div class="container">
+  	<div class="alert alert-info text-center" role="alert">
+  		<tr>
+  			<td>INSTANCE URL:</td>
+    		<td th:text="${instance_url}"/>
+    	</tr>
+    	<tr>
+    		<td>ACCESS TOKEN:</td>
+    		<td th:text="${access_token}"/>	
+    	</tr>
+    	<tr>
+    		<td>REFRESH TOKEN:</td>
+    		<td th:text="${refresh_token}"/>
+    	</tr>
+  	</div>
+  </div>
+</body>
+</html>
