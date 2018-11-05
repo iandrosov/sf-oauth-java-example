@@ -88,6 +88,11 @@ import org.apache.http.Header;
 @Controller
 @SpringBootApplication
 public class Main {
+  // To apply this code to a specific Salesforce Connected App security context replace bellow consumer key, secret and callback URL with
+  // one from your own Connected APP parameters
+  private static String SF_CLIENT_ID     = "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn";
+  private static String SF_CLIENT_SECRET = "8219049706333485472";
+  private static String SF_REDIRECT_URI  = "https://localhost:5000/oauth/_callback";
 
   @Value("${spring.datasource.url}")
   private String dbUrl;
@@ -98,12 +103,16 @@ public class Main {
   public static void main(String[] args) throws Exception {
     SpringApplication.run(Main.class, args);
   }
-
+  // Strating method for main home page index
   @RequestMapping("/")
   String index() {
     return "index";
   }
 
+  // Method to initiate Salesforce Login OAuth Flow using default consumer key for basic dev org
+  // enables to login to any Salesforce ORG with athorization via Salesforce Central IDP
+  // This method will perform a redirect to Salesforce autorization point : https://login.salesforce.com/services/oauth2/authorize
+  // result getting auth code that will be used next to get actual access & reefresh tokens
   @RequestMapping("/sfauth")
   public String sfoauth() throws IOException {
 
@@ -112,8 +121,8 @@ public class Main {
  
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("response_type", "code"));
-    params.add(new BasicNameValuePair("client_id", "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
-    params.add(new BasicNameValuePair("redirect_uri", "https://localhost:5000/oauth/_callback"));
+    params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));//  "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
+    params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); //"https://localhost:5000/oauth/_callback"));
     params.add(new BasicNameValuePair("display", "page"));
     
     httpPost.setEntity(new UrlEncodedFormEntity(params));
@@ -122,7 +131,6 @@ public class Main {
     client.close();
 
     System.out.println("### HTTP: "+response);
-
     System.out.println("### "+response.getStatusLine());
 
     String redirectUrl = "https://login.salesforce.com";
@@ -137,7 +145,7 @@ public class Main {
     }
     System.out.println("### SFDC OAUTH URL: "+redirectUrl);
 
-    return "redirect:" + redirectUrl;
+    return "redirect:" + redirectUrl; // redirect to Salesforce login front doore
 
   }
 
@@ -154,9 +162,9 @@ public class Main {
  
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("grant_type", "authorization_code"));
-      params.add(new BasicNameValuePair("client_id", "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
-      params.add(new BasicNameValuePair("client_secret", "8219049706333485472"));
-      params.add(new BasicNameValuePair("redirect_uri", "https://localhost:5000/oauth/_callback"));
+      params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID)); // "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
+      params.add(new BasicNameValuePair("client_secret", SF_CLIENT_SECRET)); //"8219049706333485472"));
+      params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); //"https://localhost:5000/oauth/_callback"));
       params.add(new BasicNameValuePair("code", code)); // Add authorization code from login attempt
     
       httpPost.setEntity(new UrlEncodedFormEntity(params));
