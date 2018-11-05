@@ -3,6 +3,10 @@ Java web app example intended to demostrate how to connect via OAuth to Salesfor
 
 This example web application is Java Spring Boot based implementation of [Web Server OAuth Authentication Flow](https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/intro_understanding_web_server_oauth_flow.htm) to enable access to Salesforce Platform REST API.
 
+The app can deploy to Heroku or run locally.
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
 ## Running Locally
 
 Make sure you have Java and Maven installed.  Also, install the [Heroku CLI](https://cli.heroku.com/).
