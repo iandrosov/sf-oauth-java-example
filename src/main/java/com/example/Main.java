@@ -89,34 +89,13 @@ public class Main {
 
   @RequestMapping("/sfauth")
   public String sfoauth() throws IOException {
-/*
-    initParams = { 
-    @WebInitParam(name = "clientId", value = "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"),
-    @WebInitParam(name = "clientSecret", value = "8219049706333485472"),
-    @WebInitParam(name = "redirectUri", value = "https://localhost:5000/oauth/_callback"),
-    @WebInitParam(name = "environment", value = "https://login.salesforce.com/services/oauth2/token")  }
- 
-    HttpClient httpclient = new HttpClient();
-    PostMethod post = new PostMethod(environment);
-    post.addParameter("code",code);
-    post.addParameter("grant_type","authorization_code");
-
-   ** For session ID instead of OAuth 2.0, use "grant_type", "password" **
-    post.addParameter("client_id",clientId);
-    post.addParameter("client_secret",clientSecret);
-    post.addParameter("redirect_uri",redirectUri);  
-
-    HttpResponse response = httpclient.execute(post);
-**/
 
     CloseableHttpClient client = HttpClients.createDefault();
     HttpPost httpPost = new HttpPost("https://login.salesforce.com/services/oauth2/authorize");
  
     List<NameValuePair> params = new ArrayList<NameValuePair>();
-    //params.add(new BasicNameValuePair("grant_type", "authorization_code"));
     params.add(new BasicNameValuePair("response_type", "code"));
     params.add(new BasicNameValuePair("client_id", "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
-    //params.add(new BasicNameValuePair("client_secret", "8219049706333485472"));
     params.add(new BasicNameValuePair("redirect_uri", "https://localhost:5000/oauth/_callback"));
     params.add(new BasicNameValuePair("display", "page"));
     
@@ -146,11 +125,41 @@ public class Main {
 
   }
 
+  // Method will recieve authorization code from Salesforce to get access and refresh tokens
+  // Auth code will expire after 15 min in thsi OAuth flow
   @RequestMapping(value="/oauth/_callback", method={RequestMethod.GET,RequestMethod.POST}, produces=MediaType.TEXT_PLAIN_VALUE)
   @ResponseBody
-  public String oauth(@RequestParam("code") String code) {
+  public String oauth(@RequestParam("code") String code) throws IOException {
     System.out.println("### OAuth RESPONSE: "+code);
 
+    try{
+      CloseableHttpClient client = HttpClients.createDefault();
+      HttpPost httpPost = new HttpPost("https://login.salesforce.com/services/oauth2/token");
+ 
+      List<NameValuePair> params = new ArrayList<NameValuePair>();
+      params.add(new BasicNameValuePair("grant_type", "authorization_code"));
+      params.add(new BasicNameValuePair("client_id", "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn"));
+      params.add(new BasicNameValuePair("client_secret", "8219049706333485472"));
+      params.add(new BasicNameValuePair("redirect_uri", "https://localhost:5000/oauth/_callback"));
+      params.add(new BasicNameValuePair("code", code)); // Add authorization code from login attempt
+    
+      httpPost.setEntity(new UrlEncodedFormEntity(params));
+ 
+      CloseableHttpResponse response = client.execute(httpPost);
+      //assertThat(response.getStatusLine().getStatusCode(), equalTo(200));
+      
+
+      HttpEntity entity = response.getEntity();
+      // Read the contents of an entity and return it as a String.
+      String content = EntityUtils.toString(entity);
+      System.out.println("### BODY: "+content);
+      client.close();
+
+      
+      
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
     return "hello";
   }
 
