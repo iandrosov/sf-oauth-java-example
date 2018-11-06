@@ -120,35 +120,38 @@ public class Main {
   // This method will perform a redirect to Salesforce autorization point : https://login.salesforce.com/services/oauth2/authorize
   // result getting auth code that will be used next to get actual access & reefresh tokens
   @RequestMapping("/sfauth")
-  public String sfoauth() throws IOException {
-
-    CloseableHttpClient client = HttpClients.createDefault();
-    HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
- 
-    List<NameValuePair> params = new ArrayList<NameValuePair>();
-    params.add(new BasicNameValuePair("response_type", "code"));
-    params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));
-    params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); 
-    params.add(new BasicNameValuePair("display", "page"));
-    
-    httpPost.setEntity(new UrlEncodedFormEntity(params));
- 
-    CloseableHttpResponse response = client.execute(httpPost);
-    client.close();
-
-    System.out.println("### HTTP: "+response);
-    System.out.println("### "+response.getStatusLine());
+  public String sfoauth() throws IOException{
 
     String redirectUrl = "https://login.salesforce.com"; // default login Salesforce URL
-    Header[] headers = response.getAllHeaders();
-    for (Header header : headers) {
-      System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
-      String key =  header.getName();
-      if (key.equals("Location")){
-          redirectUrl = header.getValue();
-      }
+    // Initialize HTTP Client
+      CloseableHttpClient client = HttpClients.createDefault();
+      HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
+   
+      List<NameValuePair> params = new ArrayList<NameValuePair>();
+      params.add(new BasicNameValuePair("response_type", "code"));
+      params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));
+      params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); 
+      params.add(new BasicNameValuePair("display", "page"));
 
-    }
+    
+      
+      httpPost.setEntity(new UrlEncodedFormEntity(params));
+   
+      CloseableHttpResponse response = client.execute(httpPost);
+      client.close();
+
+      System.out.println("### HTTP: "+response);
+      System.out.println("### "+response.getStatusLine());
+
+      Header[] headers = response.getAllHeaders();
+      for (Header header : headers) {
+        System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
+        String key =  header.getName();
+        if (key.equals("Location")){
+            redirectUrl = header.getValue();
+        }
+
+      }
     System.out.println("### SFDC OAUTH URL: "+redirectUrl);
 
     return "redirect:" + redirectUrl; // redirect to Salesforce login front doore
@@ -162,7 +165,7 @@ public class Main {
   public String oauth(@RequestParam("code") String code) throws IOException {
     System.out.println("### OAuth RESPONSE: "+code);
 
-    try{
+    
       CloseableHttpClient client = HttpClients.createDefault();
       HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/token"); // Request for TOKEN
  
@@ -195,9 +198,6 @@ public class Main {
       System.out.println("### Access Token: "+access_token);
       System.out.println("### Refresh Token: "+refresh_token);
 
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
     return "redirect:/authresult";
   }
 
