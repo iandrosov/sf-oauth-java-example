@@ -88,7 +88,9 @@ import org.apache.http.Header;
 @Controller
 @SpringBootApplication
 public class Main {
-  // ------- COnnected App Parameters ------
+  // ------- Connected App Parameters ------
+  // For production code tehe value need to be store secure.
+  // For local run time use .env config file to store local convigration property
   // To apply this code to a specific Salesforce Connected App security context replace bellow consumer key, secret and callback URL with
   // one from your own Connected APP parameters
   private static String SF_CLIENT_ID     = "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn";
@@ -210,11 +212,21 @@ public class Main {
     return "authresult";
   }
 
+  // Test code method check environment values
   @RequestMapping("/hello")
   String hello(Map<String, Object> model) {
     RelativisticModel.select();
-    Amount<Mass> m = Amount.valueOf("12 GeV").to(KILOGRAM);
-    model.put("science", "E=mc^2: 12 GeV = " + m.toString());
+    // Get Values from .env config
+    String energy = System.getenv().get("ENERGY");
+    System.out.println("### ENERGY: "+energy);
+    if (energy == null) {
+       energy = "12 GeV";
+    }
+    String secret = System.getenv().get("SF_CLIENT_SECRET");
+    System.out.println("### SF_CLIENT_SECRET:"+secret);
+
+    Amount<Mass> m = Amount.valueOf(energy).to(KILOGRAM);
+    model.put("science", "E=mc^2: "+energy+" = " + m.toString());
     return "hello";
   }
 
