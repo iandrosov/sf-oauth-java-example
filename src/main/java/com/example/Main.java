@@ -89,14 +89,15 @@ import org.apache.http.Header;
 @SpringBootApplication
 public class Main {
   // ------- Connected App Parameters ------
-  // For production code tehe value need to be store secure.
+  // For production code these values need to be stored in config file or environment variables.
   // For local run time use .env config file to store local convigration property
   // To apply this code to a specific Salesforce Connected App security context replace bellow consumer key, secret and callback URL with
   // one from your own Connected APP parameters
-  private static String SF_CLIENT_ID     = "3MVG9yZ.WNe6byQDinV4pEtYbk.XKrK3LwCNZtKCJ9lKnd6keoaNjuNXu7i3EBK_lLzNSZnXAkQE.2gw4xFZn";
-  private static String SF_CLIENT_SECRET = "8219049706333485472";
-  private static String SF_REDIRECT_URI  = "https://localhost:5000/oauth/_callback";
-  private static String SF_AUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";
+  private static String SF_CLIENT_ID     = System.getenv().get("SF_CLIENT_ID");
+  private static String SF_CLIENT_SECRET = System.getenv().get("SF_CLIENT_SECRET");
+  private static String SF_REDIRECT_URI  = System.getenv().get("SF_REDIRECT_URI");
+
+  private String SF_AUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";
 
   private String instance_url;
   private String access_token;
@@ -123,9 +124,9 @@ public class Main {
   // result getting auth code that will be used next to get actual access & reefresh tokens
   @RequestMapping("/sfauth")
   public String sfoauth() throws IOException{
-
-    String redirectUrl = "https://login.salesforce.com"; // default login Salesforce URL
-    // Initialize HTTP Client
+      SF_AUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";
+      String redirectUrl = "https://login.salesforce.com"; // default login Salesforce URL
+      // Initialize HTTP Client
       CloseableHttpClient client = HttpClients.createDefault();
       HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
    
@@ -133,9 +134,7 @@ public class Main {
       params.add(new BasicNameValuePair("response_type", "code"));
       params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));
       params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); 
-      params.add(new BasicNameValuePair("display", "page"));
-
-    
+      params.add(new BasicNameValuePair("display", "page"));    
       
       httpPost.setEntity(new UrlEncodedFormEntity(params));
    
@@ -154,9 +153,46 @@ public class Main {
         }
 
       }
-    System.out.println("### SFDC OAUTH URL: "+redirectUrl);
+      System.out.println("### SFDC OAUTH URL: "+redirectUrl);
 
-    return "redirect:" + redirectUrl; // redirect to Salesforce login front doore
+      return "redirect:" + redirectUrl; // redirect to Salesforce login front doore
+
+  }
+// Methods to authenticate with SANBOX
+@RequestMapping("/sfauthsb")
+  public String sfoauthsb() throws IOException{
+      SF_AUTH_ENDPOINT = "https://test.salesforce.com/services/oauth2";
+      String redirectUrl = "https://test.salesforce.com"; // default login Salesforce URL
+      // Initialize HTTP Client
+      CloseableHttpClient client = HttpClients.createDefault();
+      HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
+   
+      List<NameValuePair> params = new ArrayList<NameValuePair>();
+      params.add(new BasicNameValuePair("response_type", "code"));
+      params.add(new BasicNameValuePair("client_id", SF_CLIENT_ID));
+      params.add(new BasicNameValuePair("redirect_uri", SF_REDIRECT_URI)); 
+      params.add(new BasicNameValuePair("display", "page"));    
+      
+      httpPost.setEntity(new UrlEncodedFormEntity(params));
+   
+      CloseableHttpResponse response = client.execute(httpPost);
+      client.close();
+
+      System.out.println("### HTTP: "+response);
+      System.out.println("### "+response.getStatusLine());
+
+      Header[] headers = response.getAllHeaders();
+      for (Header header : headers) {
+        System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
+        String key =  header.getName();
+        if (key.equals("Location")){
+            redirectUrl = header.getValue();
+        }
+
+      }
+      System.out.println("### SFDC OAUTH URL: "+redirectUrl);
+
+      return "redirect:" + redirectUrl; // redirect to Salesforce login front doore
 
   }
 
@@ -165,7 +201,7 @@ public class Main {
   @RequestMapping(value="/oauth/_callback", method={RequestMethod.GET,RequestMethod.POST}, produces=MediaType.TEXT_PLAIN_VALUE)
   //@ResponseBody
   public String oauth(@RequestParam("code") String code) throws IOException {
-    System.out.println("### OAuth RESPONSE: "+code);
+      System.out.println("### OAuth RESPONSE: "+code);
 
     
       CloseableHttpClient client = HttpClients.createDefault();
@@ -200,7 +236,7 @@ public class Main {
       System.out.println("### Access Token: "+access_token);
       System.out.println("### Refresh Token: "+refresh_token);
 
-    return "redirect:/authresult";
+      return "redirect:/authresult";
   }
 
   @RequestMapping("/authresult")
