@@ -1,5 +1,5 @@
 {
-  "name": "Start OAuth Dance on Heroku: Java",
+  "name": "Java OAuth Dance on Heroku",
   "description": "A sample Java app, which demo Salesforce OAuth and can easily be deployed to Heroku.",
   "addons": [ "heroku-postgresql" ]
 }
