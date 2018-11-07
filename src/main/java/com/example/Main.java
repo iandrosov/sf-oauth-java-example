@@ -271,7 +271,7 @@ public class Main {
 
 
   // ========= THIS SECTION CODE NOT USED IN OAUTH DEMO ===========
-
+  // Data base methods
   @RequestMapping("/db")
   String db(Map<String, Object> model) {
     try (Connection connection = dataSource.getConnection()) {
