@@ -93,6 +93,7 @@ public class Main {
   // For local run time use .env config file to store local convigration property
   // To apply this code to a specific Salesforce Connected App security context replace bellow consumer key, secret and callback URL with
   // one from your own Connected APP parameters
+  // Th ekeys are used from connected app to grant access via central Salesfroce IDP
   private static String SF_CLIENT_ID     = System.getenv().get("SF_CLIENT_ID");
   private static String SF_CLIENT_SECRET = System.getenv().get("SF_CLIENT_SECRET");
   private static String SF_REDIRECT_URI  = System.getenv().get("SF_REDIRECT_URI");
@@ -198,6 +199,7 @@ public class Main {
 
   // Method will recieve authorization code from Salesforce to get access and refresh tokens
   // Auth code will expire after 15 min in thsi OAuth flow
+  // Auth code is for target Salesfroce org and do not bond to specific key
   @RequestMapping(value="/oauth/_callback", method={RequestMethod.GET,RequestMethod.POST}, produces=MediaType.TEXT_PLAIN_VALUE)
   //@ResponseBody
   public String oauth(@RequestParam("code") String code) throws IOException {
