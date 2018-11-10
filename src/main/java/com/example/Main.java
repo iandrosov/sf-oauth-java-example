@@ -250,6 +250,22 @@ public class Main {
     return "authresult";
   }
 
+  // Test Salesforce REST CALL data Query
+  @RequestMapping("/sfrest")
+  String restquery(Map<String, Object> model) {
+    URIBuilder builder = new URIBuilder(this.instance_url);
+    builder.setPath("/services/data/v44.0/query/").setParameter("q", "SELECT Id, Name FROM Contact");
+
+    HttpGet get = new HttpGet(builder.build());
+    get.setHeader("Authorization", "Bearer " + this.access_token);
+
+    HttpResponse queryResponse = httpclient.execute(get);
+
+    JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
+
+    return "sfrest"
+  }
+
   // Test code method check environment values
   @RequestMapping("/hello")
   String hello(Map<String, Object> model) {
