@@ -98,7 +98,13 @@ public class Main {
   private static String SF_CLIENT_SECRET = System.getenv().get("SF_CLIENT_SECRET");
   private static String SF_REDIRECT_URI  = System.getenv().get("SF_REDIRECT_URI");
 
-  private String SF_AUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";
+  private static String SF_DEVAUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";  // PROD DEV URL
+  private static String SF_SBXAUTH_ENDPOINT = "https://test.salesforce.com/services/oauth2"; // Sandbox
+
+  private String SF_AUTH_ENDPOINT = SF_DEVAUTH_ENDPOINT;
+  private String SF_REST_QUERY = "/services/data/v44.0/query/";
+  private String SF_SANDBOX_LOGIN = "https://test.salesforce.com"; // Sanbox or Scratch ORG
+  private String SF_DEV_LOGIN = "https://login.salesforce.com";
 
   private String instance_url;
   private String access_token;
@@ -125,8 +131,8 @@ public class Main {
   // result getting auth code that will be used next to get actual access & reefresh tokens
   @RequestMapping("/sfauth")
   public String sfoauth() throws IOException{
-      SF_AUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";
-      String redirectUrl = "https://login.salesforce.com"; // default login Salesforce URL
+      SF_AUTH_ENDPOINT = SF_DEVAUTH_ENDPOINT;
+      String redirectUrl = SF_DEV_LOGIN; // default login Salesforce URL
       // Initialize HTTP Client
       CloseableHttpClient client = HttpClients.createDefault();
       HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
@@ -162,8 +168,8 @@ public class Main {
 // Methods to authenticate with SANBOX
 @RequestMapping("/sfauthsb")
   public String sfoauthsb() throws IOException{
-      SF_AUTH_ENDPOINT = "https://test.salesforce.com/services/oauth2";
-      String redirectUrl = "https://test.salesforce.com"; // default login Salesforce URL
+      SF_AUTH_ENDPOINT = SF_SBXAUTH_ENDPOINT;
+      String redirectUrl = SF_SANDBOX_URI; // default login Salesforce URL
       // Initialize HTTP Client
       CloseableHttpClient client = HttpClients.createDefault();
       HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
@@ -250,11 +256,12 @@ public class Main {
     return "authresult";
   }
 
-  // Test Salesforce REST CALL data Query
+  // Test Salesforce REST CALL data Query example select Contact records limi 10
+  // Limit in case there are too many contacts
   @RequestMapping("/sfrest")
   String restquery(Map<String, Object> model) {
     URIBuilder builder = new URIBuilder(this.instance_url);
-    builder.setPath("/services/data/v44.0/query/").setParameter("q", "SELECT Id, Name FROM Contact");
+    builder.setPath(SF_REST_QUERY).setParameter("q", "SELECT Id, Name FROM Contact LIMIT 10");
 
     HttpGet get = new HttpGet(builder.build());
     get.setHeader("Authorization", "Bearer " + this.access_token);
