@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMethod;
-
+import org.springframework.web.util.UriBuilder;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.context.annotation.Scope;
@@ -71,6 +71,7 @@ import static javax.measure.unit.SI.KILOGRAM;
 import javax.measure.quantity.Mass;
 import org.jscience.physics.model.RelativisticModel;
 import org.jscience.physics.amount.Amount;
+import java.net.URISyntaxException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -83,7 +84,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.Header;
-
+import org.apache.http.client.utils.URIBuilder;
 
 @Controller
 @SpringBootApplication
@@ -132,7 +133,7 @@ public class Main {
   @RequestMapping("/sfauth")
   public String sfoauth() throws IOException{
       SF_AUTH_ENDPOINT = SF_DEVAUTH_ENDPOINT;
-      String redirectUrl = SF_DEV_LOGIN; // default login Salesforce URL
+      String redirectUrl = SF_DEV_LOGIN; // default login Salesforce URL PRODUCTION or DEV
       // Initialize HTTP Client
       CloseableHttpClient client = HttpClients.createDefault();
       HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
@@ -169,7 +170,7 @@ public class Main {
 @RequestMapping("/sfauthsb")
   public String sfoauthsb() throws IOException{
       SF_AUTH_ENDPOINT = SF_SBXAUTH_ENDPOINT;
-      String redirectUrl = SF_SANDBOX_URI; // default login Salesforce URL
+      String redirectUrl = SF_SANDBOX_LOGIN; // default login Salesforce URL
       // Initialize HTTP Client
       CloseableHttpClient client = HttpClients.createDefault();
       HttpPost httpPost = new HttpPost(SF_AUTH_ENDPOINT + "/authorize"); // Request Authorization
@@ -259,18 +260,32 @@ public class Main {
   // Test Salesforce REST CALL data Query example select Contact records limi 10
   // Limit in case there are too many contacts
   @RequestMapping("/sfrest")
-  String restquery(Map<String, Object> model) {
+  String restquery(Map<String, Object> model) throws IOException, URISyntaxException {
+
+    CloseableHttpClient client = HttpClients.createDefault();
+
     URIBuilder builder = new URIBuilder(this.instance_url);
     builder.setPath(SF_REST_QUERY).setParameter("q", "SELECT Id, Name FROM Contact LIMIT 10");
 
-    HttpGet get = new HttpGet(builder.build());
-    get.setHeader("Authorization", "Bearer " + this.access_token);
+    HttpGet httpGet = new HttpGet(builder.build());
+    httpGet.setHeader("Authorization", "Bearer " + this.access_token);
 
-    HttpResponse queryResponse = httpclient.execute(get);
+    CloseableHttpResponse queryResponse = client.execute(httpGet);
 
-    JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
+    //JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
+    HttpEntity entity = queryResponse.getEntity();
+      // Read the contents of an entity and return it as a String.
+      //String content = EntityUtils.toString(entity.getContent());
+      System.out.println("### BODY: "+entity.getContent().toString());
+      client.close();
 
-    return "sfrest"
+      //JsonParser jsonParser = new BasicJsonParser();
+      //Map<String, Object> jsonMap = jsonParser.parseMap(content);
+      //this.instance_url  = (String)jsonMap.get("instance_url");
+
+    //System.out.println("### RESUL: "+queryResults);
+
+    return "sfrest";
   }
 
   // Test code method check environment values

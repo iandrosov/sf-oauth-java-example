@@ -17,7 +17,7 @@ Make sure you have Java and Maven installed.  Also, install the [Heroku CLI](htt
 ```sh
 $ git clone https://github.com/iandrosov/sf-oauth-java-example
 $ cd sf-oauth-java-example
-$ mvn install
+$ mvn install or mvn clean install
 $ heroku local:start
 ```
 
