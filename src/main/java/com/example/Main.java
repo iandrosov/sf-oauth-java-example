@@ -278,41 +278,13 @@ public class Main {
 
     final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 	final JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
-
-    System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(queryResults));    
+	String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(queryResults);
+    System.out.println(str);    
 
     client.close();
-/*
-    System.debug("### BODY:"+queryResponse.getBody());
 
-XMLDom dom = new XMLDom(queryResponse.getBody()); 
-for( xmldom.element f: dom.getElementsByTagName('QueryResult'))
-                {
-                    List<string> ids= New List <string> (); 
-                    system.debug('here--> dom QueryResult=='+dom.getElementsByTagName('QueryResult'));
-                    for( xmldom.element e: dom.getElementsByTagName('result'))
-                    {                    
-                        system.debug('here 2--> dom Result=='+dom.getElementsByTagName('result'));
-                        system.debug('here 3-->  acc.name=='+ (String)e.getAttribute('name'));
-                         system.debug('here 3-->  acc.id=='+ (String)e.getAttribute('id'));
-                     }
-                 }
-                 */
-/**
-    //JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
-    HttpEntity entity = queryResponse.getEntity();
-      // Read the contents of an entity and return it as a String.
-      //String content = EntityUtils.toString(entity.getContent());
-      System.out.println("### BODY: "+entity.getContent().toString());
-      client.close();
+    model.put("result", str);
 
-      JsonParser jsonParser = new BasicJsonParser();
-      JsonNode queryResults =  jsonParser.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
-      //Map<String, Object> jsonMap = jsonParser.parseMap(entity.getContent());
-      //this.instance_url  = (String)jsonMap.get("instance_url");
-
-    //System.out.println("### RESULT: "+jsonMap);
-**/
     return "queryresult";
   }
 

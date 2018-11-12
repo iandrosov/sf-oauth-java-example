@@ -6,28 +6,15 @@
 	    <a href="/" class="lang-logo">
 	      <img src="/lang-logo.png">
 	    </a>
-	    <h1>Salesforce Data Query REsult</h1>
-	    <p>This page confirms shows successfull query data</p>
+	    <h1>Salesforce Data Query Result</h1>
+	    <p>This page display successfull query data result in JSON format</p>
 	    <p th:text="${instance_url}"/>
 	  </div>
 	</div>
 
   <div class="container">
   	<div class="alert alert-info text-center" role="alert">
-  		<table>
-	  		<tr>
-	  			<td>INSTANCE URL:</td>
-	    		<td th:text="${instance_url}"/>
-	    	</tr>
-	    	<tr>
-	    		<td>ACCESS TOKEN:</td>
-	    		<td th:text="${access_token}"/>	
-	    	</tr>
-	    	<tr>
-	    		<td>REFRESH TOKEN:</td>
-	    		<td th:text="${refresh_token}"/>
-	    	</tr>
-    	</table>
+  		<p th:text="${result}"/>
   	</div>
   </div>
 </body>
