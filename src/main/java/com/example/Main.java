@@ -267,22 +267,22 @@ public class Main {
   String restquery(Map<String, Object> model) throws IOException, URISyntaxException {
 
     CloseableHttpClient client = HttpClients.createDefault();
-
+    // Create SOQL QUERY example select 10 Contacts
     URIBuilder builder = new URIBuilder(this.instance_url);
     builder.setPath(SF_REST_QUERY).setParameter("q", "SELECT Id, Name FROM Contact LIMIT 10");
 
     HttpGet httpGet = new HttpGet(builder.build());
     httpGet.setHeader("Authorization", "Bearer " + this.access_token);
-
+    // Run SOQL query
     CloseableHttpResponse queryResponse = client.execute(httpGet);
-
+    // Process query results
     final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
-	final JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
-	String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(queryResults);
+	  final JsonNode queryResults = mapper.readValue(queryResponse.getEntity().getContent(), JsonNode.class);
+	  String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(queryResults);
     System.out.println(str);    
 
     client.close();
-
+    // Output query result JSON
     model.put("result", str);
 
     return "queryresult";
@@ -305,9 +305,6 @@ public class Main {
     model.put("science", "E=mc^2: "+energy+" = " + m.toString());
     return "hello";
   }
-
-
-
 
 
   // ========= THIS SECTION CODE NOT USED IN OAUTH DEMO ===========
