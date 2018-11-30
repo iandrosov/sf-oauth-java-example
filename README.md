@@ -14,7 +14,7 @@ To deploy your own copy of this app use this handy Heroku button.
 
 Make sure you have Java and Maven installed.  Also, install the [Heroku CLI](https://cli.heroku.com/).
 
-```sh
+```
 $ git clone https://github.com/iandrosov/sf-oauth-java-example
 $ cd sf-oauth-java-example
 $ mvn install or mvn clean install
@@ -41,9 +41,9 @@ SF_CLIENT_SECRET=<Consumer secret from Connected App>
 SF_REDIRECT_URI=https://localhost:5000/oauth/_callback
 ```
 
-The callback URL need to be set on connected app, it can be any url choice, we selected thsi example `https://localhost:5000/oauth/_callback`. 
+The callback URL need to be set on connected app, it can be any valid url choice taht your app will respond to, we selected this example `https://localhost:5000/oauth/_callback`. 
 
-This is the url Salesforce will call HTTP GET method on to send tokens to. Your app need to code this endpoint to get access tokens. Note callback must be HTTPS, the HTTP will not work.
+This is the url Salesforce will call HTTP GET method on to send tokens to. Your app needs to code this endpoint to get access tokens. Note callback must be HTTPS, the HTTP will not work.
 
 ### Set Environment on Heroku
 
