@@ -209,8 +209,10 @@ public class Main {
   }
 
   // Method will recieve authorization code from Salesforce to get access and refresh tokens
-  // Auth code will expire after 15 min in thsi OAuth flow
+  // Auth code will expire after 15 min in this OAuth flow
   // Auth code is for target Salesfroce org and do not bond to specific key
+  // refresh token can be stored on server with session or possible cookies browser 
+  // on mobile apps refresh token normally stored secure in keychain
   @RequestMapping(value="/oauth/_callback", method={RequestMethod.GET,RequestMethod.POST}, produces=MediaType.TEXT_PLAIN_VALUE)
   //@ResponseBody
   public String oauth(@RequestParam("code") String code) throws IOException {
@@ -262,7 +264,7 @@ public class Main {
   }
 
   // Test Salesforce REST CALL data Query example SOQL select Contact records limit 10 rows
-  // Limit in case there are too many contacts
+  // Limit to 10 records in case there are too many contacts
   @RequestMapping("/queryresult")
   String restquery(Map<String, Object> model) throws IOException, URISyntaxException {
 
