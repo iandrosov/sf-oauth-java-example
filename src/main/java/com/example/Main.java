@@ -300,7 +300,7 @@ public class Main {
       StringEntity entity = new StringEntity(payload);
 
       httpPost.addHeader("Content-Type", "application/json");
-      httpPost.setEntity(payload);
+      httpPost.setEntity(entity);
    
       CloseableHttpResponse response = client.execute(httpPost);
       client.close();
