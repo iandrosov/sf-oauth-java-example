@@ -89,6 +89,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.Header;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 
 @Controller
 @SpringBootApplication
@@ -107,9 +108,10 @@ public class Main {
   private static String SF_SBXAUTH_ENDPOINT = "https://test.salesforce.com/services/oauth2"; // Sandbox
 
   private String SF_AUTH_ENDPOINT = SF_DEVAUTH_ENDPOINT;
-  private String SF_REST_QUERY = "/services/data/v44.0/query/";
+  private String SF_REST_QUERY = "/services/data/v45.0/query/";
   private String SF_SANDBOX_LOGIN = "https://test.salesforce.com"; // Sanbox or Scratch ORG
   private String SF_DEV_LOGIN = "https://login.salesforce.com";
+  private String SF_EVENT_URL = "/services/data/v45.0/sobjects/"; // Example publish event endpoint
 
   private String instance_url;
   private String access_token;
@@ -129,6 +131,8 @@ public class Main {
   String index() {
     return "index";
   }
+
+  //---------- OAuth 2.0 Salesforce example methods START --------------
 
   // Method to initiate Salesforce Login OAuth Flow using default consumer key for basic dev org
   // enables to login to any Salesforce ORG with athorization via Salesforce Central IDP
@@ -262,6 +266,72 @@ public class Main {
 
     return "authresult";
   }
+
+  //---------- END OAuth 2.0 Salesforce example methods END --------------
+
+  //---------- START Publish Platform Event Example method ----------------
+
+  // Publish Salesfroce Platform event form Java client example
+  // Method publishes Event: Loan Activity Event API - Loan_Activity_Event__e
+  // Example event publish Load Activity event POST JSON request to event endpoint
+  @RequestMapping("/pubevent")
+  String restpub(Map<String, Object> model) throws IOException, URISyntaxException {
+      String event_url = SF_EVENT_URL + "Loan_Activity_Event__e";
+
+      // Initialize HTTP Client POST request fro EVENT
+      CloseableHttpClient client = HttpClients.createDefault();
+      HttpPost httpPost = new HttpPost(this.instance_url + event_url);
+         
+      String payload = "{" +
+                "\"Application_Name__c\": \"Lakewood\", " +
+                "\"Channel__c\": \"Retail\", " +
+                "\"Division__c\": \"Call Center\"" +
+                "\"Event_Status__c\": \"Not Validated\"" +
+                "\"Event_Subtype__c\": \"Add\", " +
+                "\"Event_Type__c\": \"Loan Status\", " +
+                "\"Lead_ID__c\": \"00065156\"" +
+                "\"Reference_ID__c\": \"N/A\", " +
+                "\"Loan_Number__c\": \"1234567654\", " +
+                "\"Source_System__c\": \"Lakewood\"" +
+                "\"Timestamp__c\": \"2019-03-18T12:44:57.341-05:00\"" +
+                "\"Transaction_ID__c\": \"N/A\", " +
+                "\"Username__c\": \"Test User\", " +
+                "}";
+      StringEntity entity = new StringEntity(payload);
+
+      httpPost.addHeader("Content-Type", "application/json");
+      httpPost.setEntity(entity);
+   
+      CloseableHttpResponse response = client.execute(httpPost);
+      client.close();
+
+      System.out.println("### HTTP: "+response);
+      System.out.println("### "+response.getStatusLine());
+
+      Header[] headers = response.getAllHeaders();
+      for (Header header : headers) {
+        System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
+        String key =  header.getName();
+        //if (key.equals("Location")){
+        //    redirectUrl = header.getValue();
+        //}
+
+      }
+      //System.out.println("### EVENT POST RESULT: "+redirectUrl);
+
+    // Process query results
+    final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    final JsonNode postResults = mapper.readValue(response.getEntity().getContent(), JsonNode.class);
+    String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(postResults);
+    System.out.println(str); 
+
+    // Output query result JSON
+    model.put("result", str);
+
+    return "queryresult";
+  }
+
+  //---------- END Publish Platform Event Example method ----------------
 
   // Test Salesforce REST CALL data Query example SOQL select Contact records limit 10 rows
   // Limit to 10 records in case there are too many contacts
