@@ -89,6 +89,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.Header;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 
 @Controller
 @SpringBootApplication
@@ -311,12 +312,12 @@ public class Main {
       for (Header header : headers) {
         System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
         String key =  header.getName();
-        if (key.equals("Location")){
-            redirectUrl = header.getValue();
-        }
+        //if (key.equals("Location")){
+        //    redirectUrl = header.getValue();
+        //}
 
       }
-      System.out.println("### EVENT POST RESULT: "+redirectUrl);
+      //System.out.println("### EVENT POST RESULT: "+redirectUrl);
 
     // Process query results
     final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
