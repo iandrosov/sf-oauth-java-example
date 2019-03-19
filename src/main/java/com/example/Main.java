@@ -329,14 +329,6 @@ public class Main {
     System.out.println(str); 
 
     client.close();
-/*
-    String result = StringUtils.EMPTY;
-    try(CloseableHttpResponse response = httpClient.execute(httpPost)) {
-        result = EntityUtils.toString(response.getEntity());
-    } catch (IOException e) {
-        logger.error("checkUser error", e);
-    }
-*/
     // Output query result JSON
     model.put("result", str);
 
