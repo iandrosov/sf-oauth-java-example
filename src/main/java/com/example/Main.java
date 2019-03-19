@@ -305,21 +305,22 @@ public class Main {
       httpPost.setEntity(entity);
    
       CloseableHttpResponse response = client.execute(httpPost);
-      client.close();
+      
 
       System.out.println("### HTTP: "+response);
       System.out.println("### "+response.getStatusLine());
 
+      String redirectUrl = "";
       Header[] headers = response.getAllHeaders();
       for (Header header : headers) {
         System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
-        //String key =  header.getName();
-        //if (key.equals("Location")){
-        //    redirectUrl = header.getValue();
-        //}
+        String key =  header.getName();
+        if (key.equals("Location")){
+            redirectUrl = header.getValue();
+        }
 
       }
-      //System.out.println("### EVENT POST RESULT: "+redirectUrl);
+      System.out.println("### EVENT POST RESULT: "+redirectUrl);
 
     // Process query results
     final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
@@ -327,6 +328,15 @@ public class Main {
     String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(postResults);
     System.out.println(str); 
 
+    client.close();
+/*
+    String result = StringUtils.EMPTY;
+    try(CloseableHttpResponse response = httpClient.execute(httpPost)) {
+        result = EntityUtils.toString(response.getEntity());
+    } catch (IOException e) {
+        logger.error("checkUser error", e);
+    }
+*/
     // Output query result JSON
     model.put("result", str);
 
