@@ -285,21 +285,22 @@ public class Main {
       String payload = "{" +
                 "\"Application_Name__c\": \"Lakewood\", " +
                 "\"Channel__c\": \"Retail\", " +
-                "\"Division__c\": \"Call Center\"" +
-                "\"Event_Status__c\": \"Not Validated\"" +
+                "\"Division__c\": \"Call Center\"," +
+                "\"Event_Status__c\": \"Not Validated\"," +
                 "\"Event_Subtype__c\": \"Add\", " +
                 "\"Event_Type__c\": \"Loan Status\", " +
-                "\"Lead_ID__c\": \"00065156\"" +
+                "\"Lead_ID__c\": \"00065156\"," +
                 "\"Reference_ID__c\": \"N/A\", " +
                 "\"Loan_Number__c\": \"1234567654\", " +
-                "\"Source_System__c\": \"Lakewood\"" +
-                "\"Timestamp__c\": \"2019-03-18T12:44:57.341-05:00\"" +
+                "\"Source_System__c\": \"Lakewood\"," +
+                "\"Timestamp__c\": \"2019-03-18T12:44:57.341-05:00\"," +
                 "\"Transaction_ID__c\": \"N/A\", " +
-                "\"Username__c\": \"Test User\", " +
+                "\"Username__c\": \"Test User\" " +
                 "}";
       StringEntity entity = new StringEntity(payload);
 
-      httpPost.addHeader("Content-Type", "application/json");
+      httpPost.addHeader("Content-Type", "application/json; charset=UTF-8");
+      httpPost.addHeader("Accept", "application/json");      
       httpPost.setHeader("Authorization", "Bearer " + this.access_token);
       httpPost.setEntity(entity);
    
@@ -312,7 +313,7 @@ public class Main {
       Header[] headers = response.getAllHeaders();
       for (Header header : headers) {
         System.out.println("#Key : " + header.getName() + " ,#Value : " + header.getValue());
-        String key =  header.getName();
+        //String key =  header.getName();
         //if (key.equals("Location")){
         //    redirectUrl = header.getValue();
         //}
