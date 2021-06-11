@@ -104,14 +104,14 @@ public class Main {
   private static String SF_CLIENT_SECRET = System.getenv().get("SF_CLIENT_SECRET");
   private static String SF_REDIRECT_URI  = System.getenv().get("SF_REDIRECT_URI");
 
-  private static String SF_DEVAUTH_ENDPOINT = "https://login.salesforce.com/services/oauth2";  // PROD DEV URL
-  private static String SF_SBXAUTH_ENDPOINT = "https://test.salesforce.com/services/oauth2"; // Sandbox
+  private static String SF_DEVAUTH_ENDPOINT = System.getenv().getOrDefault("SF_DEVAUTH_ENDPOINT","https://login.salesforce.com/services/oauth2");  // PROD DEV URL
+  private static String SF_SBXAUTH_ENDPOINT = System.getenv().getOrDefault("SF_SBXAUTH_ENDPOINT","https://test.salesforce.com/services/oauth2"); // Sandbox
 
   private String SF_AUTH_ENDPOINT = SF_DEVAUTH_ENDPOINT;
-  private String SF_REST_QUERY = "/services/data/v45.0/query/";
-  private String SF_SANDBOX_LOGIN = "https://test.salesforce.com"; // Sanbox or Scratch ORG
-  private String SF_DEV_LOGIN = "https://login.salesforce.com";
-  private String SF_EVENT_URL = "/services/data/v45.0/sobjects/"; // Example publish event endpoint
+  private String SF_REST_QUERY = System.getenv().getOrDefault("SF_REST_QUERY","/services/data/v51.0/query/");
+  private String SF_SANDBOX_LOGIN = System.getenv().getOrDefault("SF_SANDBOX_LOGIN","https://test.salesforce.com"); // Sanbox or Scratch ORG
+  private String SF_DEV_LOGIN = System.getenv().getOrDefault("SF_DEV_LOGIN","https://login.salesforce.com");
+  private String SF_EVENT_URL = System.getenv().getOrDefault("SF_EVENT_URL","/services/data/v51.0/sobjects/"); // Example publish event endpoint
 
   private String instance_url;
   private String access_token;
